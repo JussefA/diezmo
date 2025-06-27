@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Pepeletas de Diezmo y Ofrendas - Drag & Drop</title>
+  <link href="https://fonts.googleapis.com/css2?family=Merriweather&display=swap" rel="stylesheet">
+  <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+  <style>
+    body {
+      font-family: 'Merriweather', serif;
+      background: linear-gradient(to bottom, #f0eae2, #d8cfc1);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    h1 {
+      font-size: 28px;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #4a3b2f;
+    }
+
+    .container {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .form-container {
+      background: #fafafa;
+      border: 1px solid #a58c6f;
+      border-radius: 12px;
+      width: 320px;
+      padding: 15px;
+      box-shadow: 4px 4px 15px rgba(0,0,0,0.1);
+      box-sizing: border-box;
+      cursor: grab;
+    }
+
+    .section {
+      margin-bottom: 10px;
+      font-size: 15px;
+      text-align: center;
+      color: #5c4a3b;
+    }
+
+    .bold {
+      font-weight: bold;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    td, th {
+      border: 1px solid #c0b4a5;
+      padding: 4px;
+      font-size: 12px;
+      vertical-align: top;
+    }
+
+    td.amount {
+      text-align: right;
+      width: 80px;
+    }
+
+    .bottom-table td {
+      text-align: center;
+      height: 25px;
+    }
+
+    .dropzone {
+      border: 3px dashed #aaa;
+      width: 100%;
+      max-width: 1000px;
+      height: 150px;
+      margin-top: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #555;
+      background: #fdfaf7;
+      border-radius: 8px;
+    }
+
+    .correct {
+      border: 3px solid green !important;
+      box-shadow: 0 0 10px green;
+    }
+
+    .incorrect {
+      border: 3px solid red !important;
+      box-shadow: 0 0 10px red;
+    }
+
+    #nextPageBtn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: #6a4e3d;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 50px;
+      height: 50px;
+      font-size: 24px;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      z-index: 1000;
+      transition: background 0.3s ease;
+    }
+
+    #nextPageBtn:hover {
+      background: #8b6956;
+    }
+  </style>
+</head>
+<body>
+
+<h1><i class="fas fa-church"></i> Papeletas de Diezmo y Ofrendas</h1>
+
+<div class="container"></div>
+<div class="dropzone" id="dropzone">Arrastra aquí el formulario para validarlo</div>
+
+<!-- Botón de siguiente página -->
+<button id="nextPageBtn">➡️</button>
+
+
+<script>
+  let currentPage = 1;
+  
+  const correctForms = {
+    1: 'form2',
+    2: 'form6',
+    3: 'form8',
+    4: 'form10'
+  };
+  
+  const pages = {
+    1: `
+    <!-- FORMULARIO 1 -->
+    <div class="form-container" draggable="true" id="form1">
+      <div class="section bold center">Diezmos y otras ofrendas</div>
+      <table>
+        <tr><td>Fecha: </td><td>Barrio: Central</td></tr>
+        <tr><td colspan="2">Nombre: Aguilar Sanchez, Jussef David</td></tr>
+        <tr><td colspan="2">Número de Membresía: xxx-xxxx-xxxx</td></tr>
+      </table>
+      <table>
+        <tr><td><strong>Diezmo</strong></td><td class="amount">$150.00</td></tr>
+        <tr><td><strong>Ofrenda de ayuno</strong></td><td class="amount">$150.00</td></tr>
+        <tr><td>Fondo Misional General</td><td class="amount"></td></tr>
+        <tr><td>Fondo Misional de Barrio</td><td class="amount"></td></tr>
+        <tr><td>Ayuda Humanitaria</td><td class="amount"></td></tr>
+        <tr><td>Ofrendas generales</td><td class="amount"></td></tr>
+        <tr><td>Local</td><td class="amount"></td></tr>
+        <tr><td><strong>Total</strong></td><td class="amount"><strong>$300.00</strong></td></tr>
+      </table>
+      <table class="bottom-table">
+        <tr><td>Cheque(s)</td><td>Moneda(s)</td><td>Billete(s)</td></tr>
+        <tr><td></td><td>$150.00</td><td>$150.00</td></tr>
+      </table>
+    </div>
+  
+    <!-- FORMULARIO 2 - EL CORRECTO -->
+    <div class="form-container" draggable="true" id="form2">
+      <div class="section bold center">Diezmos y otras ofrendas</div>
+      <table>
+        <tr><td>Fecha: 29 de Junio de 2025</td><td>Barrio: Central</td></tr>
+        <tr><td colspan="2">Nombre: Aguilar Sanchez, Jussef David</td></tr>
+        <tr><td colspan="2">Número de Membresía: xxx-xxxx-xxxx</td></tr>
+      </table>
+      <table>
+        <tr><td><strong>Diezmo</strong></td><td class="amount">$150.00</td></tr>
+        <tr><td><strong>Ofrenda de ayuno</strong></td><td class="amount">$150.00</td></tr>
+        <tr><td>Fondo Misional General</td><td class="amount"></td></tr>
+        <tr><td>Fondo Misional de Barrio</td><td class="amount"></td></tr>
+        <tr><td>Ayuda Humanitaria</td><td class="amount"></td></tr>
+        <tr><td>Ofrendas generales</td><td class="amount"></td></tr>
+        <tr><td>Local</td><td class="amount"></td></tr>
+        <tr><td><strong>Total</strong></td><td class="amount"><strong>$300.00</strong></td></tr>
+      </table>
+      <table class="bottom-table">
+        <tr><td>Cheque(s)</td><td>Moneda(s)</td><td>Billete(s)</td></tr>
+        <tr><td></td><td></td><td>$300.00</td></tr>
+      </table>
+    </div>
+  
+    <!-- FORMULARIO 3 -->
+    <div class="form-container" draggable="true" id="form3">
+      <div class="section bold center">Diezmos y otras ofrendas</div>
+      <table>
+        <tr><td>Fecha: 22 de Junio de 2025</td><td>Barrio: Central</td></tr>
+        <tr><td colspan="2">Nombre: Aguilar Sanchez, Jussef David</td></tr>
+        <tr><td colspan="2">Número de Membresía: xxx-xxxx-xxxx</td></tr>
+      </table>
+      <table>
+        <tr><td><strong>Diezmo</strong></td><td class="amount">$150.00</td></tr>
+        <tr><td><strong>Ofrenda de ayuno</strong></td><td class="amount">$150.00</td></tr>
+        <tr><td>Fondo Misional General</td><td class="amount"></td></tr>
+        <tr><td>Fondo Misional de Barrio</td><td class="amount"></td></tr>
+        <tr><td>Ayuda Humanitaria</td><td class="amount"></td></tr>
+        <tr><td>Ofrendas generales</td><td class="amount"></td></tr>
+        <tr><td>Local</td><td class="amount"></td></tr>
+        <tr><td><strong>Total</strong></td><td class="amount"><strong>$300.00</strong></td></tr>
+      </table>
+      <table class="bottom-table">
+        <tr><td>Cheque(s)</td><td>Moneda(s)</td><td>Billete(s)</td></tr>
+        <tr><td></td><td></td><td>$300.00</td></tr>
+      </table>
+    </div>
+  </div>
+    `, 
+    2: `
+     <!-- FORMULARIO 1 -->
+    <div class="form-container" draggable="true" id="form4">
+      <div class="section bold center">Diezmos y otras ofrendas</div>
+      <table>
+        <tr><td>Fecha: 29 de Junio de 2025</td><td>Barrio: Central</td></tr>
+        <tr><td colspan="2">Nombre: Zamarripa David</td></tr>
+        <tr><td colspan="2">Número de Membresía: xxx-xxxx-xxxx</td></tr>
+      </table>
+      <table>
+        <tr><td><strong>Diezmo</strong></td><td class="amount">$1525.00</td></tr>
+        <tr><td><strong>Ofrenda de ayuno</strong></td><td class="amount">$216.00</td></tr>
+        <tr><td>Fondo Misional General</td><td class="amount"></td></tr>
+        <tr><td>Fondo Misional de Barrio</td><td class="amount">$115.00</td></tr>
+        <tr><td>Ayuda Humanitaria</td><td class="amount"></td></tr>
+        <tr><td>Ofrendas generales</td><td class="amount"></td></tr>
+        <tr><td>Local</td><td class="amount"></td></tr>
+        <tr><td><strong>Total</strong></td><td class="amount"><strong>$1851.00</strong></td></tr>
+      </table>
+      <table class="bottom-table">
+        <tr><td>Cheque(s)</td><td>Moneda(s)</td><td>Billete(s)</td></tr>
+        <tr><td></td><td>$11.00</td><td>$1840.00</td></tr>
+      </table>
+    </div>
+  
+    <!-- FORMULARIO 2 - EL CORRECTO -->
+    <div class="form-container" draggable="true" id="form5">
+      <div class="section bold center">Diezmos y otras ofrendas</div>
+      <table>
+        <tr><td>Fecha: 29 de Junio de 2025</td><td>Barrio: Central</td></tr>
+        <tr><td colspan="2">Nombre: Zamarripa David</td></tr>
+        <tr><td colspan="2">Número de Membresía: xxx-xxxx-xxxx</td></tr>
+      </table>
+      <table>
+        <tr><td><strong>Diezmo</strong></td><td class="amount">$1525.00</td></tr>
+        <tr><td><strong>Ofrenda de ayuno</strong></td><td class="amount">$215.00</td></tr>
+        <tr><td>Fondo Misional General</td><td class="amount"></td></tr>
+        <tr><td>Fondo Misional de Barrio</td><td class="amount">$110.00</td></tr>
+        <tr><td>Ayuda Humanitaria</td><td class="amount"></td></tr>
+        <tr><td>Ofrendas generales</td><td class="amount"></td></tr>
+        <tr><td>Local</td><td class="amount"></td></tr>
+        <tr><td><strong>Total</strong></td><td class="amount"><strong>$1840.00</strong></td></tr>
+      </table>
+      <table class="bottom-table">
+        <tr><td>Cheque(s)</td><td>Moneda(s)</td><td>Billete(s)</td></tr>
+        <tr><td></td><td></td><td>$1840.00</td></tr>
+      </table>
+    </div>
+  
+    <!-- FORMULARIO 3 -->
+    <div class="form-container" draggable="true" id="form6">
+      <div class="section bold center">Diezmos y otras ofrendas</div>
+      <table>
+        <tr><td>Fecha: 29 de Junio de 2025</td><td>Barrio: Central</td></tr>
+        <tr><td colspan="2">Nombre: Zamarripa David</td></tr>
+        <tr><td colspan="2">Número de Membresía: xxx-xxxx-xxxx</td></tr>
+      </table>
+      <table>
+        <tr><td><strong>Diezmo</strong></td><td class="amount">$1525.00</td></tr>
+        <tr><td><strong>Ofrenda de ayuno</strong></td><td class="amount">$216.00</td></tr>
+        <tr><td>Fondo Misional General</td><td class="amount"></td></tr>
+        <tr><td>Fondo Misional de Barrio</td><td class="amount">$115.00</td></tr>
+        <tr><td>Ayuda Humanitaria</td><td class="amount"></td></tr>
+        <tr><td>Ofrendas generales</td><td class="amount"></td></tr>
+        <tr><td>Local</td><td class="amount"></td></tr>
+        <tr><td><strong>Total</strong></td><td class="amount"><strong>$1856.00</strong></td></tr>
+      </table>
+      <table class="bottom-table">
+        <tr><td>Cheque(s)</td><td>Moneda(s)</td><td>Billete(s)</td></tr>
+        <tr><td></td><td>$16.00</td><td>$1840.00</td></tr>
+      </table>
+    </div>
+  </div>
+    `,
+    3: `
+     <!-- FORMULARIO 1 -->
+    <div class="form-container" draggable="true" id="form7">
+      <div class="section bold center">Diezmos y otras ofrendas</div>
+      <table>
+        <tr><td>Fecha: 29 de Junio de 2025</td><td>Barrio: Central</td></tr>
+        <tr><td colspan="2">Nombre: Terrazas, Himni</td></tr>
+        <tr><td colspan="2">Número de Membresía: xxx-xxxx-xxxx</td></tr>
+      </table>
+      <table>
+        <tr><td><strong>Diezmo</strong></td><td class="amount">$150.00 dlls</td></tr>
+        <tr><td><strong>Ofrenda de ayuno</strong></td><td class="amount"></td></tr>
+        <tr><td>Fondo Misional General</td><td class="amount"></td></tr>
+        <tr><td>Fondo Misional de Barrio</td><td class="amount"></td></tr>
+        <tr><td>Ayuda Humanitaria</td><td class="amount"></td></tr>
+        <tr><td>Ofrendas generales</td><td class="amount"></td></tr>
+        <tr><td>Local</td><td class="amount"></td></tr>
+        <tr><td><strong>Total</strong></td><td class="amount"><strong>$150.00 dlls</strong></td></tr>
+      </table>
+      <table class="bottom-table">
+        <tr><td>Cheque(s)</td><td>Moneda(s)</td><td>Billete(s)</td></tr>
+        <tr><td></td><td></td><td>$150.00 dlls</td></tr>
+      </table>
+    </div>
+  
+    <!-- FORMULARIO 2 -->
+    <div class="form-container" draggable="true" id="form8">
+      <div class="section bold center">Diezmos y otras ofrendas</div>
+      <table>
+        <tr><td>Fecha: 29 de Junio de 2025</td><td>Barrio: Central</td></tr>
+        <tr><td colspan="2">Nombre: Terrazas, Himni</td></tr>
+        <tr><td colspan="2">Número de Membresía: xxx-xxxx-xxxx</td></tr>
+      </table>
+      <table>
+        <tr><td><strong>Diezmo</strong></td><td class="amount">$150.00</td></tr>
+        <tr><td><strong>Ofrenda de ayuno</strong></td><td class="amount"></td></tr>
+        <tr><td>Fondo Misional General</td><td class="amount"></td></tr>
+        <tr><td>Fondo Misional de Barrio</td><td class="amount"></td></tr>
+        <tr><td>Ayuda Humanitaria</td><td class="amount"></td></tr>
+        <tr><td>Ofrendas generales</td><td class="amount"></td></tr>
+        <tr><td>Local</td><td class="amount"></td></tr>
+        <tr><td><strong>Total</strong></td><td class="amount"><strong>$150.00</strong></td></tr>
+      </table>
+      <table class="bottom-table">
+        <tr><td>Cheque(s)</td><td>Moneda(s)</td><td>Billete(s)</td></tr>
+        <tr><td></td><td></td><td>$150.00</td></tr>
+      </table>
+    </div>
+  
+    <!-- FORMULARIO 3 -->
+    <div class="form-container" draggable="true" id="form9">
+      <div class="section bold center">Diezmos y otras ofrendas</div>
+      <table>
+        <tr><td>Fecha: 29 de Junio de 2025</td><td>Barrio: Central</td></tr>
+        <tr><td colspan="2">Nombre: Terrazas, Himni</td></tr>
+        <tr><td colspan="2">Número de Membresía: xxx-xxxx-xxxx</td></tr>
+      </table>
+      <table>
+        <tr><td><strong>Diezmo</strong></td><td class="amount"></td></tr>
+        <tr><td><strong>Ofrenda de ayuno</strong></td><td class="amount"></td></tr>
+        <tr><td>Fondo Misional General</td><td class="amount"></td></tr>
+        <tr><td>Fondo Misional de Barrio</td><td class="amount"></td></tr>
+        <tr><td>Ayuda Humanitaria</td><td class="amount"></td></tr>
+        <tr><td>Ofrendas generales</td><td class="amount"></td></tr>
+        <tr><td>Local</td><td class="amount"></td></tr>
+        <tr><td><strong>Total</strong></td><td class="amount"><strong>$150.00</strong></td></tr>
+      </table>
+      <table class="bottom-table">
+        <tr><td>Cheque(s)</td><td>Moneda(s)</td><td>Billete(s)</td></tr>
+        <tr><td></td><td></td><td>$150.00</td></tr>
+      </table>
+    </div>
+  </div>
+    `, 
+    4: `
+     <!-- FORMULARIO 1 -->
+    <div class="form-container" draggable="true" id="form10">
+      <div class="section bold center">Diezmos y otras ofrendas</div>
+      <table>
+        <tr><td>Fecha: 29 de Junio de 2025</td><td>Barrio: Central</td></tr>
+        <tr><td colspan="2">Nombre: Ocampo Bautista, Emanuel</td></tr>
+        <tr><td colspan="2">Número de Membresía: xxx-xxxx-xxxx</td></tr>
+      </table>
+      <table>
+        <tr><td><strong>Diezmo</strong></td><td class="amount">$450.00</td></tr>
+        <tr><td><strong>Ofrenda de ayuno</strong></td><td class="amount">$150.00</td></tr>
+        <tr><td>Fondo Misional General</td><td class="amount">$150.00</td></tr>
+        <tr><td>Fondo Misional de Barrio</td><td class="amount">$150.00</td></tr>
+        <tr><td>Ayuda Humanitaria</td><td class="amount">$100.00</td></tr>
+        <tr><td>Ofrendas generales</td><td class="amount"></td></tr>
+        <tr><td>Local: JAS MX</td><td class="amount">$300.00</td></tr>
+        <tr><td><strong>Total</strong></td><td class="amount"><strong>$1300.00</strong></td></tr>
+      </table>
+      <table class="bottom-table">
+        <tr><td>Cheque(s)</td><td>Moneda(s)</td><td>Billete(s)</td></tr>
+        <tr><td></td><td>$150.00</td><td>$1150.00</td></tr>
+      </table>
+    </div>
+  
+    <!-- FORMULARIO 2 -C -->
+    <div class="form-container" draggable="true" id="form11">
+      <div class="section bold center">Diezmos y otras ofrendas</div>
+      <table>
+        <tr><td>Fecha: 29 de Junio de 2025</td><td>Barrio: Central</td></tr>
+        <tr><td colspan="2">Nombre: Ocampo Bautista</td></tr>
+        <tr><td colspan="2">Número de Membresía: xxx-xxxx-xxxx</td></tr>
+      </table>
+      <table>
+        <tr><td><strong>Diezmo</strong></td><td class="amount">$550.00</td></tr>
+        <tr><td><strong>Ofrenda de ayuno</strong></td><td class="amount">$250.00</td></tr>
+        <tr><td>Fondo Misional General</td><td class="amount">$150.00</td></tr>
+        <tr><td>Fondo Misional de Barrio</td><td class="amount">$150.00</td></tr>
+        <tr><td>Ayuda Humanitaria</td><td class="amount"></td></tr>
+        <tr><td>Ofrendas generales</td><td class="amount"></td></tr>
+        <tr><td>Local: FSY MX</td><td class="amount">$250.00</td></tr>
+        <tr><td><strong>Total</strong></td><td class="amount"><strong>1350.00</strong></td></tr>
+      </table>
+      <table class="bottom-table">
+        <tr><td>Cheque(s)</td><td>Moneda(s)</td><td>Billete(s)</td></tr>
+        <tr><td></td><td></td><td>$1350.00</td></tr>
+      </table>
+    </div>
+  
+    <!-- FORMULARIO 3 -->
+      <div class="form-container" draggable="true" id="form12">
+      <div class="section bold center">Diezmos y otras ofrendas</div>
+      <table>
+        <tr><td>Fecha: 29 de Junio de 2025</td><td>Barrio: Central</td></tr>
+        <tr><td colspan="2">Nombre: </td></tr>
+        <tr><td colspan="2">Número de Membresía: xxx-xxxx-xxxx</td></tr>
+      </table>
+      <table>
+        <tr><td><strong>Diezmo</strong></td><td class="amount">$1150.00</td></tr>
+        <tr><td><strong>Ofrenda de ayuno</strong></td><td class="amount">$353.00</td></tr>
+        <tr><td>Fondo Misional General</td><td class="amount"></td></tr>
+        <tr><td>Fondo Misional de Barrio</td><td class="amount">$313.00</td></tr>
+        <tr><td>Ayuda Humanitaria</td><td class="amount">$448.00</td></tr>
+        <tr><td>Ofrendas generales</td><td class="amount"></td></tr>
+        <tr><td>Local</td><td class="amount"></td></tr>
+        <tr><td><strong>Total</strong></td><td class="amount"><strong>$2264.00</strong></td></tr>
+      </table>
+      <table class="bottom-table">
+        <tr><td>Cheque(s)</td><td>Moneda(s)</td><td>Billete(s)</td></tr>
+        <tr><td></td><td>$4.00</td><td>$2260.00</td></tr>
+      </table>
+    </div>
+  </div>
+    `
+  };
+  
+  function loadPage(pageNumber) {
+    const container = document.querySelector('.container');
+    container.innerHTML = pages[pageNumber] || '<div>No hay más formularios</div>';
+    currentPage = pageNumber;
+  
+    document.querySelectorAll('.form-container').forEach(form => {
+      form.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData("text/plain", form.id);
+      });
+    });
+  }
+  
+  loadPage(currentPage);
+  
+  document.getElementById('nextPageBtn').addEventListener('click', () => {
+    if (currentPage < 4) {
+      loadPage(currentPage + 1);
+    }
+  });
+  
+  const dropzone = document.getElementById('dropzone');
+  
+  dropzone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropzone.style.background = '#e0e0e0';
+  });
+  
+  dropzone.addEventListener('dragleave', () => {
+    dropzone.style.background = '#fff';
+  });
+  
+  dropzone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropzone.style.background = '#fff';
+  
+    const id = e.dataTransfer.getData("text/plain");
+    const dragged = document.getElementById(id);
+  
+    document.querySelectorAll('.form-container').forEach(f => {
+      f.classList.remove('correct', 'incorrect');
+    });
+  
+    if (id === correctForms[currentPage]) {
+      dragged.classList.add('correct');
+    } else {
+      dragged.classList.add('incorrect');
+    }
+  });
+  </script>
+
+</body>
+</html>
